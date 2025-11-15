@@ -11,16 +11,26 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 username = "digitalvaultwarehouse"
 password = "Milly123456!!"
 
-logging.info(f"Using username: {username}")
-
 client = Client()
+session_file = "session.json"
+
 logging.info("Attempting login...")
 
 try:
-    client.login(username, password)
+    if os.path.exists(session_file):
+        logging.info("Loading saved session...")
+        client.load_settings(session_file)
+        client.login(username, password)
+    else:
+        logging.info("New login required...")
+        client.login(username, password)
+        client.dump_settings(session_file)
+    
     logging.info("Logged in successfully!")
+    
 except Exception as e:
     logging.error(f"Login failed: {e}")
+    logging.error("You may need to verify your account on Instagram first")
     sys.exit(1)
 
 try:
