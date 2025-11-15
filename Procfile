@@ -1,1 +1,1 @@
-web: python threads_bot_v2.py
+web: python threads_bot_simple.py
