@@ -8,38 +8,47 @@ import sys
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-# Debug: Print ALL environment variables
-logging.info("All environment variables:")
-for key in os.environ:
-    if 'THREADS' in key:
-        logging.info(f"{key}: {os.environ[key][:5]}...")
+# TEMPORARY: Hardcoded credentials
+username = "digitalvaultwarehouse"
+password = "Milly123456!!"
 
-# Get credentials with fallback
-username = os.environ.get('THREADS_USERNAME', '')
-password = os.environ.get('THREADS_PASSWORD', '')
-
-logging.info(f"Username: '{username}'")
-logging.info(f"Password length: {len(password)}")
-
-if not username or not password:
-    logging.error("Missing credentials!")
-    logging.error(f"USERNAME empty: {not username}")
-    logging.error(f"PASSWORD empty: {not password}")
-    sys.exit(1)
+logging.info(f"Using username: {username}")
 
 client = Client()
 logging.info("Attempting login...")
-client.login(username, password)
-logging.info("✅ Logged in successfully!")
 
-df = pd.read_csv('threads_posts.csv')
-pending = df[df['status'] == 'pending']
+try:
+    client.login(username, password)
+    logging.info("✅ Logged in successfully!")
+except Exception as e:
+    logging.error(f"Login failed: {e}")
+    sys.exit(1)
 
-logging.info(f"Found {len(pending)} pending posts")
-
-if len(pending) > 0:
-    text = pending.iloc[0]['text']
-    logging.info(f"Posting: {text[:50]}...")
+# Load CSV
+try:
+    df = pd.read_csv('threads_posts.csv')
+    pending = df[df['status'] == 'pending']
     
-logging.info("Bot completed!")
+    logging.info(f"Found {len(pending)} pending posts")
+    
+    if len(pending) > 0:
+        text = pending.iloc[0]['text']
+        logging.info(f"Ready to post: {text[:50]}...")
+        # Actually post it
+        # client.post(text) # Uncomment when ready
+        
+    logging.info("✅ Bot working!")
+    
+except Exception as e:
+    logging.error(f"Error: {e}")
+
 time.sleep(86400)
+```
+
+Update this in GitHub, let it deploy, then check the logs.
+
+You should see:
+```
+✅ Logged in successfully!
+Found 40 pending posts
+Ready to post: 2025 is the year of digital products...
